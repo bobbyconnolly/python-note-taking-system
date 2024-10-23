@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+            font-size: 16px;
+        }
+        
+        h1, h2, h3 { 
+            color: #2c3e50;
+            margin-top: 1.5em;
+        }
+        
+        pre, code {
+            font-family: Consolas, Monaco, 'Courier New', monospace;
+            font-size: 0.9em;  /* Relative to body font size */
+        }
+        
+        .code-block {
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: Consolas, Monaco, 'Courier New', monospace;
+            font-size: 32px !important; /* Base size for all text */
+            line-height: 1.5;
+            overflow-x: auto;
+            white-space: pre;
+            width: 100%;
+            -webkit-text-size-adjust: none;
+        }
+
+        /* Remove the universal selector and make spans match exactly */
+        .code-block span {
+            font-size: 32px !important;
+        }
+
+        @media (max-width: 600px) {
+            .code-block,
+            .code-block span {
+                font-size: 32px !important;
+            }
+        }
+        
+        .keyword { color: #0000ff; }
+        .comment { color: #008000; }
+        .string { color: #a31515; }
+        .number { color: #9b59b6; }
+        .function { color: #795e26; }
+        
+        .warning {
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            color: #856404;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+        
+        .note {
+            background-color: #e2e3e5;
+            border: 1px solid #d6d8db;
+            color: #383d41;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+        
+        .purple-note {
+            background-color: #f3e5f5;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+            border-left: 4px solid #9c27b0;
+            color: #4a148c;
+        }
+        
+        img {
+            max-width: 100%;
+            border-radius: 6px;
+            margin: 15px 0;
+            border: 1px solid #dee2e6;
+        }
+    </style>
+</head>
+<body>
+    <h1>Setting Up Your Smart Note-Taking System</h1>
+    
+    <h2>1. Required Packages</h2>
+    <p>Our note-taking system requires several Python packages to handle text processing and similarity search. Here's what we'll be using:</p>
+    <ul>
+        <li><strong>sentence-transformers</strong>: For converting text to semantic embeddings</li>
+        <li><strong>numpy</strong>: For numerical operations</li>
+        <li><strong>pandas</strong>: For data handling (usually pre-installed with Anaconda)</li>
+    </ul>
+
+    <div class="note">
+        <p>📓 <strong>Jupyter Notebook Tips:</strong> For better organization and easier debugging:</p>
+        <ul>
+            <li>Put each code block in its own cell</li>
+            <li>Run cells in order from top to bottom</li>
+            <li>Use Shift+Enter to run a cell and move to the next one</li>
+            <li>If you make changes, re-run affected cells in order</li>
+        </ul>
+    </div>
+
+    <h2>2. Installation Process</h2>
+    <p>Run the following command in a new Jupyter notebook cell:</p>
+    <pre class="code-block">
+<span class="function">!pip</span> <span class="keyword">install</span> <span class="string">sentence-transformers</span>
+    </pre>
+
+    <div class="warning">
+        ⚠️ <strong>Important:</strong> The installation might take several minutes as it downloads the required models and dependencies. Don't worry if you see a lot of output - this is normal!
+    </div>
+
+    <p>You should see something like this during installation:</p>
+    <img src="install sentence-transformer.PNG" alt="pip install output showing download progress">
+
+    <h2>3. Verify Installation</h2>
+    <p>After installation completes, run this code to verify everything is working:</p>
+    <pre class="code-block">
+<span class="comment"># Import required libraries</span>
+<span class="keyword">from</span> sentence_transformers <span class="keyword">import</span> SentenceTransformer
+<span class="keyword">import</span> numpy <span class="keyword">as</span> np
+
+<span class="comment"># Simple test to ensure everything works</span>
+<span class="function">print</span>(<span class="string">"✓ Imports successful!"</span>)
+    </pre>
+
+    <img src="import reqd libs.PNG" alt="import required libraries">
+
+    <div class="note">
+        <p>📝 <strong>Note:</strong> If you see any warnings about CUDA or GPU, don't worry! We've designed this system to work perfectly fine on CPU.</p>
+    </div>
+
+    <h2>4. Troubleshooting</h2>
+    <p>If you encounter any issues during installation:</p>
+    <ul>
+        <li>Try restarting your Jupyter kernel and running the installation again</li>
+        <li>Make sure you have a stable internet connection (the model files are ~100MB)</li>
+        <li>If you see warnings about CUDA or GPU, these can be safely ignored</li>
+        <li>If pip is not recognized, make sure you're using the correct Python environment</li>
+    </ul>
+
+    <div class="warning">
+        <p>If you're on Windows and see warnings about symlinks, these can be safely ignored. They won't affect the functionality of our system.</p>
+    </div>
+
+    <h2>Next Steps</h2>
+    <p>Once you've completed the installation and verified it's working, we're ready to move on to preparing our notes data!</p>
+
+    <h1>Preparing Notes Data</h1>
+    
+    <h2>1. Understanding Note Structure</h2>
+    <p>We'll start by creating a collection of notes that we'll use throughout this project. Each note will be a simple text string, but they can contain:</p>
+    <ul>
+        <li>Multiple sentences</li>
+        <li>Technical content</li>
+        <li>Different lengths</li>
+        <li>Related concepts</li>
+    </ul>
+
+    <h2>2. Creating Our Notes Dataset</h2>
+    <p>Let's create a list of sample notes. Copy this code into your notebook:</p>
+    <pre class="code-block">
+<span class="comment"># Initialize our collection of notes</span>
+notes = [
+    <span class="string">"Python lists are mutable sequences used to store collections of items. They can contain mixed types and are defined using square brackets."</span>,
+    <span class="string">"Lists in Python can be modified after creation. Common operations include append(), extend(), and insert()."</span>,
+    <span class="string">"Data structures are fundamental building blocks in programming. They help organize and store data efficiently."</span>,
+    <span class="string">"Arrays in NumPy provide efficient storage and operations for numerical data. They are widely used in scientific computing."</span>,
+    <span class="string">"Object-oriented programming in Python uses classes and objects. Classes define the structure and behavior of objects."</span>,
+    <span class="string">"The pandas library is built on top of NumPy and provides powerful data manipulation tools through DataFrames."</span>,
+    <span class="string">"Version control with Git helps track changes in code. Common commands include commit, push, and pull."</span>,
+    <span class="string">"Python functions are defined using the def keyword. They can accept parameters and return values."</span>,
+]
+
+<span class="comment"># Print the number of notes we have</span>
+<span class="function">print</span>(<span class="string">f"Created {len(notes)} notes"</span>)
+    </pre>
+
+    <div class="note">
+        <p>💡 <strong>Note:</strong> These are placeholder notes about programming concepts. You can replace these with your own study notes, documentation snippets, or any text content you want to search through!</p>
+    </div>
+
+    <h2>3. Testing Our Dataset</h2>
+    <p>Let's verify our notes are properly structured:</p>
+    <pre class="code-block">
+<span class="comment"># Print each note with its length</span>
+<span class="keyword">for</span> i, note <span class="keyword">in</span> <span class="function">enumerate</span>(notes):
+    <span class="function">print</span>(<span class="string">f"\nNote {i+1} (Length: {len(note)} characters):"</span>)
+    <span class="function">print</span>(<span class="string">f"{'='*50}"</span>)
+    <span class="function">print</span>(note)
+    </pre>
+
+    <h2>4. Understanding Note Characteristics</h2>
+    <p>Our sample notes have several important characteristics that make them good for semantic search:</p>
+    <ul>
+        <li><strong>Related Concepts:</strong> Some notes are about similar topics (e.g., Python lists and arrays)</li>
+        <li><strong>Varying Lengths:</strong> Notes range from single sentences to multiple sentences</li>
+        <li><strong>Different Perspectives:</strong> Some notes approach similar topics from different angles</li>
+    </ul>
+
+    <pre class="code-block">
+<span class="comment"># Quick analysis of our notes</span>
+note_lengths = [<span class="function">len</span>(note.split()) <span class="keyword">for</span> note <span class="keyword">in</span> notes]
+
+<span class="function">print</span>(<span class="string">f"Average words per note: {sum(note_lengths)/len(note_lengths):.1f}"</span>)
+<span class="function">print</span>(<span class="string">f"Shortest note: {min(note_lengths)} words"</span>)
+<span class="function">print</span>(<span class="string">f"Longest note: {max(note_lengths)} words"</span>)
+    </pre>
+
+    <div class="purple-note">
+        <p><strong>About List Comprehensions:</strong> This is a shorter way to create a list. Instead of writing:</p>
+        <pre class="code-block">
+lengths = []
+<span class="keyword">for</span> note <span class="keyword">in</span> notes:
+    word_count = <span class="function">len</span>(note.split())
+    lengths.append(word_count)</pre>
+        <p>We can write it in one line:</p>
+        <pre class="code-block">
+lengths = [<span class="function">len</span>(note.split()) <span class="keyword">for</span> note <span class="keyword">in</span> notes]</pre>
+        <p>Same result, less code! Python developers love these shorter forms.</p>
+    </div>
+
+    <h2>5. Guidelines for Adding Your Own Notes</h2>
+    <p>When replacing or adding your own notes, keep these tips in mind:</p>
+    <ul>
+        <li>Each note should be self-contained and meaningful on its own</li>
+        <li>Notes can be of varying lengths, but avoid extremely long texts (consider breaking them up)</li>
+        <li>Include some notes that are semantically related but use different words</li>
+        <li>Mix specific and general content to test semantic search capabilities</li>
+    </ul>
+
+    <div class="warning">
+        <p>⚠️ <strong>Important:</strong> While SBERT can handle longer texts, it works best with notes that are focused on a single topic or concept. If you have very long notes, consider splitting them into smaller, focused chunks.</p>
+    </div>
+
+    <h2>Ready to Continue</h2>
+    <p>Our notes are now ready for processing! In the next section, we'll load the SBERT model and convert these notes into semantic embeddings.</p>
+
+    <div class="note">
+        <p>🔍 <strong>Try it yourself:</strong> Before moving on, try adding a few of your own notes to the list. This will help you understand how different types of content work with semantic search.</p>
+    </div>
+
+    <h1>Setting Up the SBERT Model</h1>
+    
+    <h2>1. Loading the Model</h2>
+    <p>First, we'll load the SBERT model. This is a one-time operation that might take a few seconds:</p>
+    <pre class="code-block">
+<span class="keyword">from</span> sentence_transformers <span class="keyword">import</span> SentenceTransformer
+
+<span class="comment"># Load the model - this may take a few seconds</span>
+model = SentenceTransformer(<span class="string">'all-MiniLM-L6-v2'</span>)
+
+<span class="function">print</span>(<span class="string">"Model loaded successfully!"</span>)</pre>
+
+
+<div class="warning">
+    <p>⚠️ The first time you run this, it will download the model files (~100MB). This only happens once.</p>
+</div>
+
+<img src="model-loaded.PNG" alt="Loading the model">
+
+    <h2>2. Understanding Embeddings</h2>
+    <p>Let's create a single embedding to understand what we're working with:</p>
+    <pre class="code-block">
+<span class="comment"># Create an embedding for a simple sentence</span>
+test_sentence = <span class="string">"This is a test sentence to understand embeddings."</span>
+embedding = model.encode(test_sentence)
+
+<span class="comment"># Look at the embedding's properties</span>
+<span class="function">print</span>(<span class="string">f"Embedding shape: {embedding.shape}"</span>)
+<span class="function">print</span>(<span class="string">f"First 5 values: {embedding[:5]}"</span>)</pre>
+
+    <div class="note">
+        <p>💡 Each embedding is a vector of 384 numbers that represents the semantic meaning of the text.</p>
+    </div>
+
+    <h2>3. Testing Batch Processing</h2>
+    <p>Now let's test the model with multiple sentences:</p>
+    <pre class="code-block">
+<span class="comment"># Create embeddings for a few test sentences</span>
+test_sentences = [
+    <span class="string">"Python is a programming language"</span>,
+    <span class="string">"Programming languages are used to write software"</span>,
+    <span class="string">"Pythons are large snakes"</span>
+]
+
+<span class="comment"># Generate embeddings for all sentences at once</span>
+embeddings = model.encode(test_sentences)
+
+<span class="function">print</span>(<span class="string">f"Number of embeddings: {len(embeddings)}"</span>)
+<span class="function">print</span>(<span class="string">f"Shape of each embedding: {embeddings[0].shape}"</span>)</pre>
+
+
+<img src="embeddings.PNG" alt="embeddings shape">
+
+<div class="purple-note">
+    <p><strong>About that (384,) Shape:</strong> When you see (<span class="number">384</span>,), that trailing comma makes it a tuple with one value. Without the comma, (<span class="number">384</span>) would just be the number 384 in parentheses. NumPy uses tuples for shapes because vectors and matrices can have multiple dimensions - for example, a 2D matrix might be (<span class="number">3</span>,<span class="number">4</span>). Even for 1D vectors, it keeps the tuple format for consistency!</p>
+</div>
+
+
+    <h2>4. Testing Similarity</h2>
+    <p>Let's verify that our embeddings capture semantic meaning:</p>
+    <pre class="code-block">
+<span class="keyword">import</span> numpy <span class="keyword">as</span> np
+
+<span class="comment"># Calculate similarities between sentences</span>
+<span class="keyword">def</span> <span class="function">calculate_similarity</span>(emb1, emb2):
+    <span class="keyword">return</span> np.dot(emb1, emb2) / (np.linalg.norm(emb1) * np.linalg.norm(emb2))
+
+<span class="comment"># Get similarities between all pairs</span>
+<span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="function">len</span>(test_sentences)):
+    <span class="keyword">for</span> j <span class="keyword">in</span> <span class="function">range</span>(i + 1, <span class="function">len</span>(test_sentences)):
+        similarity = calculate_similarity(embeddings[i], embeddings[j])
+        <span class="function">print</span>(<span class="string">f"\nSimilarity between:\n'{test_sentences[i]}' and\n'{test_sentences[j]}':\n{similarity:.3f}"</span>)</pre>
+
+    <div class="purple-note">
+        <p><strong>Understanding Similarity:</strong> We're using cosine similarity here - imagine two arrows pointing from the center of a circle. The more similar two texts are, the smaller the angle between their arrows. If they point in exactly the same direction, they're very similar (score near <span class="number">1</span>). If they point in opposite directions, they're very different (score near <span class="number">-1</span>).</p>
+    </div>
+
+    <h2>5. Model Properties</h2>
+    <p>Key things to understand about our SBERT model:</p>
+    <ul>
+        <li>It converts any text into a vector of 384 numbers</li>
+        <li>Similar meanings result in similar vectors</li>
+        <li>It can process both single sentences and batches</li>
+        <li>The similarity score ranges from -1 to 1 (1 being most similar)</li>
+    </ul>
+
+    <div class="warning">
+        <p>⚠️ Keep the model in memory! Don't reload it for each operation - it's expensive.</p>
+    </div>
+
+    <h2>Ready to Continue</h2>
+    <p>Now that we have our model set up and understand how embeddings work, we're ready to process our actual notes collection!</p>
+
+
+    <h1>Building Our Notes Search System</h1>
+    
+    <h2>1. Process All Notes</h2>
+    <p>First, let's create embeddings for our entire notes collection:</p>
+    <pre class="code-block">
+<span class="comment"># Convert all notes to embeddings</span>
+note_embeddings = model.encode(notes)
+
+<span class="function">print</span>(<span class="string">f"Created embeddings for {len(notes)} notes"</span>)
+<span class="function">print</span>(<span class="string">f"Each embedding has shape: {note_embeddings[0].shape}"</span>)</pre>
+
+    <h2>2. Create Search Function</h2>
+    <p>Now let's create our main search function:</p>
+    <pre class="code-block">
+<span class="keyword">def</span> <span class="function">search_notes</span>(query, top_k=3):
+    <span class="comment"># Convert search query to embedding</span>
+    query_embedding = model.encode(query)
+    
+    <span class="comment"># Calculate similarities with all notes</span>
+    similarities = np.dot(note_embeddings, query_embedding) / (
+        np.linalg.norm(note_embeddings, axis=1) * np.linalg.norm(query_embedding)
+    )
+    
+    <span class="comment"># Get top k matches</span>
+    top_idx = np.argsort(similarities)[::-1][:top_k]
+    
+    <span class="comment"># A list of dictionaries</span>
+    results = []
+    <span class="keyword">for</span> idx <span class="keyword">in</span> top_idx:
+        results.append({
+            <span class="string">'note'</span>: notes[idx],
+            <span class="string">'similarity'</span>: similarities[idx]
+        })
+        
+    <span class="comment"># Return matching notes with thier similarity scores</span>
+    <span class="keyword">return</span> results</pre>
+
+    <div class="purple-note">
+        <p><strong>What's This Math Doing?</strong> This code calculates how similar each note is to your search query. <span class="function">np.dot</span> multiplies the numbers in matching positions and adds them up, while <span class="function">np.linalg.norm</span> helps normalize the results so longer texts don't automatically get higher scores. The [::-1] reverses the order so we get highest scores first!</p>
+    </div>
+
+    <h2>3. Try Some Searches</h2>
+    <p>Let's test our search with different types of queries:</p>
+    <pre class="code-block">
+<span class="comment"># Function to display search results nicely</span>
+<span class="keyword">def</span> <span class="function">display_results</span>(query, results):
+    <span class="function">print</span>(<span class="string">f"\nSearch Query: '{query}'"</span>)
+    <span class="function">print</span>(<span class="string">"="</span> * 50)
+    <span class="keyword">for</span> i, r <span class="keyword">in</span> <span class="function">enumerate</span>(results, 1):
+        <span class="function">print</span>(<span class="string">f"\n{i}. Match ({r['similarity']:.2%} similar):"</span>)
+        <span class="function">print</span>(r[<span class="string">'note'</span>])
+
+<span class="comment"># Try some example searches</span>
+queries = [
+    <span class="string">"How do Python lists work?"</span>,
+    <span class="string">"Tell me about data structures"</span>,
+    <span class="string">"What is object oriented programming?"</span>
+]
+
+<span class="keyword">for</span> query <span class="keyword">in</span> queries:
+    results = search_notes(query)
+    display_results(query, results)</pre>
+
+    <div class="note">
+        <p>💡 Notice how the search finds semantically related notes even when the exact words don't match!</p>
+    </div>
+
+    <h2>4. Understanding the Results</h2>
+    <ul>
+        <li><strong>Similarity Scores:</strong> Range from -1 to 1 (or 0% to 100% when displayed as percentage)</li>
+        <li><strong>Match Quality:</strong>
+            <ul>
+                <li>>90%: Extremely close match</li>
+                <li>70-90%: Strong semantic relationship</li>
+                <li>50-70%: Moderate relationship</li>
+                <li>&lt;50%: Weak or questionable relationship</li>
+            </ul>
+        </li>
+    </ul>
+
+    <h2>Try It Yourself!</h2>
+    <p>Experiment with your own queries:</p>
+    <pre class="code-block">
+<span class="comment"># Test with your own query</span>
+my_query = <span class="string">"What's the difference between lists and arrays?"</span>
+results = search_notes(my_query)
+display_results(my_query, results)</pre>
+
+    <img src="similarity.PNG" alt="similarity">
+
+    <div class="warning">
+        <p>⚠️ Remember: The quality of results depends on your notes collection. More diverse notes = better search coverage!</p>
+    </div>
+
+    <h1>Extending Your Notes System (optional)</h1>
+    
+    <h2>Feature Ideas</h2>
+    <div class="note">
+        <p>Here are some ways you can enhance your semantic search system. Pick ones that interest you!</p>
+    </div>
+
+    <h3>1. Note Categories</h3>
+    <pre class="code-block">
+<span class="comment"># Structure notes with categories</span>
+notes = [
+    {
+        <span class="string">'content'</span>: <span class="string">"Python lists are mutable sequences..."</span>,
+        <span class="string">'category'</span>: <span class="string">"Python Basics"</span>,
+        <span class="string">'tags'</span>: [<span class="string">"data structures"</span>, <span class="string">"lists"</span>]
+    }
+]</pre>
+
+    <h3>2. Smart Results Filtering</h3>
+    <pre class="code-block">
+<span class="keyword">def</span> <span class="function">search_notes</span>(query, min_similarity=0.5):
+    <span class="comment"># Only return results above similarity threshold</span>
+    results = [r <span class="keyword">for</span> r <span class="keyword">in</span> results <span class="keyword">if</span> r[<span class="string">'similarity'</span>] >= min_similarity]</pre>
+
+    <div class="purple-note">
+        <p><strong>Another List Comprehension:</strong> Instead of writing:</p>
+        <pre class="code-block">
+filtered_results = []
+<span class="keyword">for</span> r <span class="keyword">in</span> results:
+    <span class="keyword">if</span> r[<span class="string">'similarity'</span>] >= min_similarity:
+        filtered_results.append(r)</pre>
+        <p>We can write the shorter version:</p>
+        <pre class="code-block">
+filtered_results = [r <span class="keyword">for</span> r <span class="keyword">in</span> results <span class="keyword">if</span> r[<span class="string">'similarity'</span>] >= min_similarity]</pre>
+        <p>The if part filters out results that aren't similar enough.</p>
+    </div>
+
+    <h3>3. Note Chunking</h3>
+    <pre class="code-block">
+<span class="keyword">def</span> <span class="function">chunk_note</span>(note, max_words=50):
+    <span class="comment"># Split long notes into smaller chunks</span>
+    words = note.split()
+    <span class="keyword">return</span> [<span class="string">' '</span>.join(words[i:i+max_words]) 
+            <span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(0, <span class="function">len</span>(words), max_words)]</pre>
+
+    <div class="purple-note">
+        <p><strong>What's This join() Thing?</strong> Let's break it down with a simple example:</p>
+        <pre class="code-block">
+words = [<span class="string">"hello"</span>, <span class="string">"there"</span>, <span class="string">"student"</span>]
+result = <span class="string">' '</span>.join(words)
+<span class="comment"># result is "hello there student"</span></pre>
+        <p>The <span class="string">' '</span> (space) is what we want between each word. Without it:</p>
+        <pre class="code-block">
+<span class="string">''</span>.join(words)  <span class="comment"># Would give: "hellotherestudent"</span>
+<span class="string">','</span>.join(words)  <span class="comment"># Would give: "hello,there,student"</span></pre>
+        <p>So when we do <span class="string">' '</span>.join(words[i:i+max_words]), we're taking a slice of words and putting spaces between them to make a proper sentence again!</p>
+    </div>
+
+    <div class="purple-note">
+        <p><strong>One More List Comprehension:</strong> Yes, we're being lazy (in a good way)! Instead of:</p>
+        <pre class="code-block">
+chunks = []
+<span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="number">0</span>, <span class="function">len</span>(words), max_words):
+    chunk = <span class="string">' '</span>.join(words[i:i+max_words])
+    chunks.append(chunk)</pre>
+        <p>We can write:</p>
+        <pre class="code-block">
+chunks = [<span class="string">' '</span>.join(words[i:i+max_words]) <span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="number">0</span>, <span class="function">len</span>(words), max_words)]</pre>
+        <p>Being lazy (writing less code) often means fewer chances for bugs!</p>
+    </div>
+
+    <h3>4. Results Clustering</h3>
+    <p>Group similar results together using techniques like K-means on embeddings.</p>
+
+    <h3>5. Performance Optimization</h3>
+    <p>Store embeddings in numpy arrays and save to disk for faster loading.</p>
+
+    <h2>Glossary</h2>
+    <dl>
+        <dt><strong>Embedding</strong></dt>
+        <dd>A numerical representation of text that captures its meaning (in our case, a vector of 384 numbers).</dd>
+        
+        <dt><strong>Semantic Search</strong></dt>
+        <dd>Finding matches based on meaning rather than exact word matches.</dd>
+        
+        <dt><strong>SBERT</strong></dt>
+        <dd>Sentence-BERT, a model that converts text into meaningful numerical representations.</dd>
+        
+        <dt><strong>Cosine Similarity</strong></dt>
+        <dd>A measure (-1 to 1) of how similar two embeddings are. Higher means more similar.</dd>
+        
+        <dt><strong>Vector</strong></dt>
+        <dd>An array of numbers that represents a point in multi-dimensional space.</dd>
+    </dl>
+
+    <h2>Learning Resources</h2>
+    <div class="note">
+        <p>📚 Here are some beginner-friendly resources to learn more:</p>
+    </div>
+    
+    <ul>
+        <li><strong>Understanding Embeddings:</strong>
+            <a href="https://jalammar.github.io/illustrated-word2vec/">Illustrated Word2Vec</a> - Visual guide to word embeddings
+        </li>
+        
+        <li><strong>Python Skills:</strong>
+            <a href="https://realpython.com/python-lists-tuples/">Real Python's List Guide</a> - Practical Python data structures
+        </li>
+        
+        <li><strong>NumPy Basics:</strong>
+            <a href="https://numpy.org/doc/stable/user/absolute_beginners.html">NumPy for Beginners</a> - Essential array operations
+        </li>
+    </ul>
+
+    <h2>Next Steps</h2>
+    <p>To continue learning:</p>
+    <ol>
+        <li>Try adding 10-15 of your own study notes</li>
+        <li>Experiment with different types of queries</li>
+        <li>Implement one of the feature ideas</li>
+        <li>Share your improvements with classmates!</li>
+    </ol>
+
+    <div class="warning">
+        <p>🎯 Start small! Pick one enhancement at a time and test thoroughly before adding more features.</p>
+    </div>
+
+
+</body>
+</html>
